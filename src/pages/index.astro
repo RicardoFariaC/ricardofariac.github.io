@@ -1,0 +1,29 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import "../styles/global.css";
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+	</head>
+	<body class="flex items-start">
+		<Header />
+		<main class="flex-5/6">
+			<h1 class="rounded-md"><code class="rounded-md">$ echo $(whoami)</code></h1>
+			<p>
+				
+			</p>
+			<p>
+				
+			</p>
+			<ul>
+				<li>Check out the included blog posts in <code>src/content/blog/</code></li>
+				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
+			</ul>
+		</main>
+	</body>
+</html>
