@@ -1,0 +1,9 @@
+---
+import HeaderLink from "../HeaderLink.astro";
+const { href, class: className, content, ...props } = Astro.props;
+---
+
+<HeaderLink href={href} class:list={[className, `border border-gray-300 px-2 py-1 shadow-2xs 
+    transition-all hover:shadow-md hover:-translate-y-0.5 active:bg-black/20 active:translate-y-0.5 cursor-pointer`]} {...props}>
+    {content ?? <slot />}
+</HeaderLink>

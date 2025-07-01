@@ -1,32 +1,21 @@
 ---
-import HeaderLink from './HeaderLink.astro';
-import { SITE_TITLE } from '../consts';
-import "../styles/global.css";
-
-const today = new Date();
+import { Image } from 'astro:assets';
+import HeaderButton from './Header/HeaderButton.astro';
+import githubSvg from "../../public/icons/github.svg";
 ---
 
-<header class="bg-orange-100 m-2 p-4 rounded-md flex-2/6 md:flex-2/12">
-	<nav class="h-full flex flex-col">
-		<h2 class="py-5 font-bold text-center"><a href="/">{SITE_TITLE}</a></h2>
-		<div class="flex flex-col w-full">
-			<HeaderLink href="/" 
-				class=
-				"border m-1 p-2 text-gray-800 rounded-md"
-			>Home</HeaderLink>
-			<HeaderLink href="/blog" class="border m-1 p-2 text-gray-800 rounded-md">Blog</HeaderLink>
-			<HeaderLink href="/about" class="border m-1 p-2 text-gray-800 rounded-md">About</HeaderLink>
+<header class="select-none flex justify-around items-center p-2 border-b border-gray-400">
+	<p class="font-semibold text-2xl hidden md:inline">Ricardo Faria</p>
+	<div class="flex items-center gap-5">
+		<HeaderButton class="rounded-xl" href="/blog" content="Blog" />
+		<HeaderButton class="rounded-xl" href="/" content="Sobre" />
+		<div class="flex gap-2">
+			<HeaderButton class="rounded-full w-10 h-10 flex items-center">
+				<img src="/icons/github.svg" alt="" srcset="">
+			</HeaderButton>
+			<HeaderButton class="rounded-full w-10 h-10 flex items-center">
+				<img src="/icons/linkedin.svg" alt="" srcset="">
+			</HeaderButton>
 		</div>
-		<div class="social-links disclaimers pt-8 text-center">
-			© {today.getFullYear()} Ricardo Faria da Costa. All rights reserved.
-		</div>
-	</nav>
+	</div>
 </header>
-<style>
-	nav a.active {
-		text-decoration: none;
-		border-bottom: 4px solid;
-		border-bottom-color: #e88801
-	}
-</style>	
-

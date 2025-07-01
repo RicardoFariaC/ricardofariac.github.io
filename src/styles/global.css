@@ -5,7 +5,6 @@
  */
 @import "tailwindcss"; 
 
-
 :root {
 	--accent: #2337ff;
 	--accent-dark: #000d8a;
@@ -40,10 +39,16 @@
 	font-display: swap;
 }
 
+@font-face {
+	font-family: 'AdwaitaSans';
+	src: url('/fonts/AdwaitaSans-Regular.ttf') format('truetype');
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+
 body {
-	font-family: 'Atkinson', sans-serif;
-	margin: 0;
-	padding: 0;
+	font-family: 'AdwaitaSans', sans-serif;
 	text-align: left;
 	background: linear-gradient(var(--gray-gradient)) no-repeat;
 	background-size: 100% 600px;
@@ -56,15 +61,14 @@ body {
 main {
 	width: 720px;
 	max-width: calc(100% - 2em);
-	padding: 1em 1em;
 }
+
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-	margin: 0 0 0.5rem 0;
 	color: rgb(var(--black));
 	line-height: 1.2;
 }
@@ -87,12 +91,6 @@ strong,
 b {
 	font-weight: 700;
 }
-p {
-	margin-bottom: 1em;
-}
-.prose p {
-	margin-bottom: 2em;
-}
 textarea {
 	width: 100%;
 	font-size: 16px;
@@ -111,7 +109,6 @@ img {
 code {
 	font-family: "SpaceMono", monospace;
 	padding: 2px 5px;
-	background-color: rgb(var(--gray-light));
 	border-radius: 2px;
 }
 pre {
@@ -119,9 +116,10 @@ pre {
 	border-radius: 8px;
 }
 blockquote {
-	border-left: 4px solid var(--accent);
-	padding: 0 0 0 20px;
-	margin: 0px;
+	color: whitesmoke;
+	border-left: 4px solid #b6927b;
+	background-color: #181616;
+	padding: 4px 0px 4px 8px;
 	font-size: 1.333em;
 }
 hr {
@@ -140,7 +138,6 @@ hr {
 .sr-only {
 	border: 0;
 	padding: 0;
-	margin: 0;
 	position: absolute !important;
 	height: 1px;
 	width: 1px;

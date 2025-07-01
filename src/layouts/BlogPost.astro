@@ -2,87 +2,123 @@
 import type { CollectionEntry } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import { Image } from 'astro:assets';
 
 type Props = CollectionEntry<'blog'>['data'];
 
 const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
-
 import '../styles/global.css';
 ---
 
 <html lang="en">
 	<head>
 		<BaseHead title={title} description={description} />
-		<style>
-			main {
-				width: calc(100% - 2em);
-				max-width: 100%;
-				margin: 0;
-			}
-			.hero-image {
-				width: 100%;
-			}
-			.hero-image img {
-				display: block;
-				margin: 0 auto;
-				border-radius: 12px;
-				box-shadow: var(--box-shadow);
-			}
-			.prose {
-				width: 720px;
-				max-width: calc(100% - 2em);
-				margin: auto;
-				padding: 1em;
-				color: rgb(var(--gray-dark));
-			}
-			.title {
-				margin-bottom: 1em;
-				padding: 1em 0;
-				text-align: center;
-				line-height: 1;
-			}
-			.title h1 {
-				margin: 0 0 0.5em 0;
-			}
-			.date {
-				margin-bottom: 0.5em;
-				color: rgb(var(--gray));
-			}
-			.last-updated-on {
-				font-style: italic;
-			}
-		</style>
 	</head>
-
 	<body>
 		<Header />
-		<main>
-			<article>
-				<div class="hero-image">
-					{heroImage && <Image width={1020} height={510} src={heroImage} alt="" />}
-				</div>
-				<div class="prose">
-					<div class="title">
-						<div class="date">
-							<FormattedDate date={pubDate} />
-							{
-								updatedDate && (
-									<div class="last-updated-on">
-										Last updated on <FormattedDate date={updatedDate} />
-									</div>
-								)
-							}
-						</div>
-						<h1>{title}</h1>
-						<hr />
+		<article class="flex flex-col items-center md:mx-52 mx-8 my-4">
+				<div>
+					<div class="hover:-translate-y-2 hover:shadow-xl rounded transition-all select-none">
+						{heroImage && <Image height={550} src={heroImage} alt="" />}
 					</div>
+					<div>
+						{
+							updatedDate && (
+								<div>
+									Last updated on <FormattedDate date={updatedDate} />
+								</div>
+							)
+						}
+						<div class="py-2 flex flex-col text-justify items-start justify-start md:text-xl text-sm">
+							<h1 class="text-sm">{title}</h1>
+							<div class="flex items-center gap-2 select-none">
+								<img src="/icons/calendar.svg" class="w-8" alt="" srcset="">
+								<FormattedDate date={pubDate} />
+							</div>
+						</div>
+					</div>
+				</div>
+				<hr />
+				<div class="article">
 					<slot />
 				</div>
 			</article>
-		</main>
-		<Footer />
+			<button class="select-none hover:bottom-2 hover:shadow-md active:bottom-0 active:bg-black/20 transition-all opacity-0 transition-discrete bg-[#a6a69c] m-4 md:m-24 border rounded-full py-2 px-4 bottom-0 right-0 fixed back-to-top">
+				Back to top
+			</button>
 	</body>
+	<script>
+		let btn = document.querySelector(".back-to-top");
+
+		btn?.addEventListener("click", () => {
+			window.scrollTo(0,0);
+		});
+
+		document.addEventListener("scroll", ()=>{
+			if(window.scrollY > 0) {
+				btn?.classList.add("opacity-0");
+				btn?.classList.remove("opacity-0");
+			} else {
+				btn?.classList.add("opacity-0");
+				btn?.classList.remove("opacity");
+			}
+		});
+
+		
+	</script>
+	<style>
+		h1 {
+			text-overflow: ellipsis;
+		}
+
+		.article {
+			blockquote::before {
+				margin-top: 0.5rem;
+				margin-left: 0.5rem;
+				content: url("/public/icons/warning-oct.svg");
+			}
+
+			blockquote {
+				display: flex;
+				align-items: center;
+				gap: 1rem;
+				margin-block: 1rem;
+				font-size: 1.25rem;
+
+			}
+
+			h1,h2,h3,h4,h5,h6 {
+				margin-block: 0.5rem;
+				font-size: 3rem;
+				font-weight: bold;
+			}
+
+			h4::before {
+				display: inline;
+				content: url('/public/icons/arrow.svg');
+			}
+
+			h4 {
+				display: flex;
+				margin-top: 2rem;
+				font-size: 1.75rem;
+			}
+
+
+			img {
+				margin: 0 auto;
+			}
+
+			a {
+				color: #8ba4b0;
+				text-decoration: underline;
+			}
+
+			a::after {
+				content: url('/public/icons/external.svg');
+				vertical-align: super;
+			}
+		}
+	</style>
 </html>
