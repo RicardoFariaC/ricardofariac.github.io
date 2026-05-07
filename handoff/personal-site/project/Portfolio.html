@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Ricardo Faria da Costa — Portfolio designs</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&family=Crimson+Pro:ital,wght@0,300..700;1,300..700&family=EB+Garamond:ital,wght@0,400..700;1,400..700&family=STIX+Two+Text:ital,wght@0,400..700;1,400..700&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  html, body { margin: 0; padding: 0; background: #1f1f1f; }
+  body { font-family: 'Inter Tight', system-ui, sans-serif; }
+  /* For artboard inner scrolling within fixed-size frames */
+  .artboard-inner { overflow: hidden; }
+</style>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="v1-manuscript/cover.jsx"></script>
+<script type="text/babel" src="v1-manuscript/blog.jsx"></script>
+<script type="text/babel" src="v2-preprint/cover.jsx"></script>
+<script type="text/babel" src="v2-preprint/blog.jsx"></script>
+
+<script type="text/babel" data-presets="env,react">
+const { useState, useEffect } = React;
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "v1FontPair": "crimson",
+  "v2FontPair": "libertinus",
+  "dark": true,
+  "density": "comfortable",
+  "texture": "grid"
+}/*EDITMODE-END*/;
+
+function App() {
+  const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
+
+  const v1Tweaks = {
+    fontPair: tweaks.v1FontPair,
+    dark: tweaks.dark,
+    density: tweaks.density,
+    texture: tweaks.texture,
+  };
+  const v2Tweaks = {
+    fontPair: tweaks.v2FontPair,
+    dark: tweaks.dark,
+    density: tweaks.density,
+    texture: tweaks.texture,
+  };
+
+  return (
+    <>
+      <DesignCanvas title="Personal site — Ricardo Faria da Costa" subtitle="Two editorial directions, two pages each. Toggle Tweaks for live controls.">
+        <DCSection id="v1" title="V1 — Manuscript" subtitle="Warm paper, italic display serif, marginalia, drop-caps, footnote-style links. Reads like a small printed essay collection.">
+          <DCArtboard id="v1-cover" label="Cover letter" width={900} height={1500}>
+            <Manuscript tweaks={v1Tweaks} />
+          </DCArtboard>
+          <DCArtboard id="v1-blog" label="Blog index" width={900} height={1500}>
+            <ManuscriptBlog tweaks={v1Tweaks} />
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="v2" title="V2 — Preprint" subtitle="arXiv-inspired. Numbered sections, monospace metadata, dense table of skills, BibTeX easter egg. Reads like a paper.">
+          <DCArtboard id="v2-cover" label="Cover letter" width={1000} height={1500}>
+            <Preprint tweaks={v2Tweaks} />
+          </DCArtboard>
+          <DCArtboard id="v2-blog" label="Blog index" width={1000} height={1500}>
+            <PreprintBlog tweaks={v2Tweaks} />
+          </DCArtboard>
+        </DCSection>
+      </DesignCanvas>
+
+      <TweaksPanel title="Tweaks">
+        <TweakSection title="Theme">
+          <TweakToggle label="Dark mode" value={tweaks.dark} onChange={(v) => setTweak('dark', v)} />
+          <TweakRadio
+            label="Density"
+            value={tweaks.density}
+            options={[
+              { value: "compact", label: "Compact" },
+              { value: "comfortable", label: "Comfy" },
+              { value: "airy", label: "Airy" },
+            ]}
+            onChange={(v) => setTweak('density', v)}
+          />
+          <TweakRadio
+            label="Background"
+            value={tweaks.texture}
+            options={[
+              { value: "plain", label: "Plain" },
+              { value: "grid", label: "Grid" },
+              { value: "noise", label: "Noise" },
+            ]}
+            onChange={(v) => setTweak('texture', v)}
+          />
+        </TweakSection>
+
+        <TweakSection title="V1 Manuscript — fonts">
+          <TweakSelect
+            label="Font pair"
+            value={tweaks.v1FontPair}
+            options={[
+              { value: "source", label: "Source Serif + JetBrains Mono" },
+              { value: "crimson", label: "Crimson Pro + IBM Plex Mono" },
+              { value: "ebgaramond", label: "EB Garamond + IBM Plex Mono" },
+            ]}
+            onChange={(v) => setTweak('v1FontPair', v)}
+          />
+        </TweakSection>
+
+        <TweakSection title="V2 Preprint — fonts">
+          <TweakSelect
+            label="Font pair"
+            value={tweaks.v2FontPair}
+            options={[
+              { value: "computer", label: "Latin Modern-ish + JetBrains Mono" },
+              { value: "libertinus", label: "Libre Caslon + IBM Plex Mono" },
+              { value: "stix", label: "STIX Two + JetBrains Mono" },
+            ]}
+            onChange={(v) => setTweak('v2FontPair', v)}
+          />
+        </TweakSection>
+      </TweaksPanel>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

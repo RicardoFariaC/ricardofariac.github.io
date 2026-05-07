@@ -1,0 +1,266 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Masthead from '../../components/Masthead.astro';
+import Footer from '../../components/Footer.astro';
+import SkillTable from '../../components/SkillTable.astro';
+import type { Lang } from '../../i18n/ui';
+import { useTranslations } from '../../i18n/ui';
+
+export function getStaticPaths() {
+  return [{ params: { lang: 'pt' } }, { params: { lang: 'en' } }];
+}
+
+const { lang } = Astro.params as { lang: Lang };
+const t = useTranslations(lang);
+
+const blogHref = `/${lang}/blog`;
+const s5item4 = t('s5.item4').replace('{lang}', lang);
+---
+
+<BaseLayout
+  title="Ricardo Faria da Costa"
+  description={lang === 'pt'
+    ? 'Engenheiro de Computação & Dados · Candidato a Sistemas Espaciais.'
+    : 'Computer & Data Engineer · Space Systems candidate.'}
+  lang={lang}
+  canonicalSlug=""
+>
+  <div class="page">
+    <article class="container">
+
+      <Masthead
+        left={t('masthead.vol')}
+        center={t('masthead.center')}
+        right={t('masthead.right')}
+        lang={lang}
+      />
+
+      <!-- Title block -->
+      <div class="title-block">
+        <p class="eyebrow">{t('home.eyebrow')}</p>
+        <h1 class="name">Ricardo Faria<br />da Costa</h1>
+        <p class="role" set:html={t('home.role')} />
+        <div class="ornament"><span>—</span><span>§</span><span>—</span></div>
+      </div>
+
+      <!-- Abstract -->
+      <section class="ms-section">
+        <p class="mono-label" style="margin-bottom:12px">Abstract</p>
+        <p class="abstract-text drop-cap" set:html={t('home.abstract')} />
+      </section>
+
+      <!-- §I -->
+      <section class="ms-section">
+        <div class="section-header">
+          <span class="section-label">§ I</span>
+          <h2 class="section-title"><em set:html={t('s1.title')} /></h2>
+        </div>
+        <div class="section-body">
+          <p set:html={t('s1.p1')} />
+          <p set:html={t('s1.p2')} />
+        </div>
+      </section>
+
+      <!-- §II Skills -->
+      <section class="ms-section">
+        <div class="section-header">
+          <span class="section-label">§ II</span>
+          <h2 class="section-title"><em set:html={t('s2.title')} /></h2>
+        </div>
+        <div class="section-body">
+          <SkillTable lang={lang} />
+        </div>
+      </section>
+
+      <!-- §III Education -->
+      <section class="ms-section">
+        <div class="section-header">
+          <span class="section-label">§ III</span>
+          <h2 class="section-title"><em set:html={t('s3.title')} /></h2>
+        </div>
+        <div class="section-body">
+          <div class="entry">
+            <div class="entry-year">{t('s3.ita.period')}</div>
+            <div>
+              <div class="entry-title"><em set:html={t('s3.ita.degree')} /></div>
+              <div class="entry-org">{t('s3.ita.org')}</div>
+              <div class="entry-note">{t('s3.ita.note')}</div>
+            </div>
+          </div>
+          <div class="entry">
+            <div class="entry-year">{t('s3.univap.period')}</div>
+            <div>
+              <div class="entry-title"><em set:html={t('s3.univap.degree')} /></div>
+              <div class="entry-org">{t('s3.univap.org')}</div>
+              <div class="entry-note">{t('s3.univap.note')}</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- §IV Experience -->
+      <section class="ms-section">
+        <div class="section-header">
+          <span class="section-label">§ IV</span>
+          <h2 class="section-title"><em set:html={t('s4.title')} /></h2>
+        </div>
+        <div class="section-body">
+          <div class="entry">
+            <div class="entry-year">{t('s4.job1.period')}</div>
+            <div>
+              <div class="entry-title"><em>{t('s4.job1.title')}</em></div>
+              <div class="entry-org">——</div>
+              <div class="entry-note" set:html={t('s4.job1.note')} />
+            </div>
+          </div>
+          <div class="entry">
+            <div class="entry-year">{t('s4.job2.period')}</div>
+            <div>
+              <div class="entry-title"><em>{t('s4.job2.title')}</em></div>
+              <div class="entry-org">——</div>
+              <div class="entry-note">{t('s4.job2.note')}</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- §V Now -->
+      <section class="ms-section">
+        <div class="section-header">
+          <span class="section-label">§ V</span>
+          <h2 class="section-title"><em set:html={t('s5.title')} /></h2>
+        </div>
+        <div class="section-body">
+          <ul class="now-list">
+            <li set:html={t('s5.item1')} />
+            <li set:html={t('s5.item2')} />
+            <li set:html={t('s5.item3')} />
+            <li set:html={s5item4} />
+          </ul>
+        </div>
+      </section>
+
+      <Footer lang={lang} />
+
+    </article>
+  </div>
+</BaseLayout>
+
+<style>
+  .page {
+    padding: 80px 0;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+
+  .title-block {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 22px;
+  }
+
+  .name {
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: clamp(42px, 7vw, 56px);
+    font-weight: 400;
+    line-height: 1.05;
+    margin: 0;
+    letter-spacing: -0.015em;
+    font-style: italic;
+    color: var(--ink);
+  }
+
+  .role {
+    margin: 26px 0 0;
+    font-size: 16px;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  .ornament {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 40px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  .ms-section { margin-bottom: 52px; }
+
+  .section-header {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 24px;
+    align-items: baseline;
+    margin-bottom: 22px;
+  }
+
+  .section-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-align: right;
+    padding-top: 6px;
+  }
+
+  .section-title {
+    margin: 0;
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 26px;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+
+  .section-body { padding-left: 84px; }
+
+  .section-body p { margin: 0 0 22px; text-align: justify; }
+  .section-body p:last-child { margin-bottom: 0; }
+
+  .abstract-text { margin: 0; font-size: 18px; text-align: justify; }
+
+  .entry {
+    margin-bottom: 26px;
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 18px;
+  }
+  .entry:last-child { margin-bottom: 0; }
+
+  .entry-year {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    padding-top: 4px;
+  }
+
+  .entry-title { font-size: 17px; color: var(--ink); }
+  .entry-org   { font-size: 14px; color: var(--muted); margin-top: 2px; }
+  .entry-note  { font-size: 15px; margin-top: 6px; color: var(--ink); opacity: 0.85; }
+
+  .now-list {
+    margin: 0;
+    padding-left: 22px;
+    list-style: square;
+  }
+  .now-list li { margin-bottom: 9px; }
+  .now-list li:last-child { margin-bottom: 0; }
+</style>

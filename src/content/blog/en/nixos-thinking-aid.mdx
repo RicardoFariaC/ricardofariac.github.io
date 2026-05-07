@@ -1,0 +1,36 @@
+---
+title: "NixOS as a thinking aid"
+description: "Reproducible machines force you to write down the implicit. After a year, the configuration file reads like a journal of every problem I ever convinced myself I had solved."
+pubDate: 2026-03-08
+tags: ["nixos", "reproducibility"]
+kind: Notebook
+readTime: 6
+---
+
+I switched to NixOS about a year ago for the wrong reasons — I wanted a reproducible workstation and I had heard Nix was the tool for that. What I got was reproducibility, eventually, but also something I had not anticipated: a machine that forces you to write down the implicit.
+
+## The configuration file as journal
+
+On a conventional Linux system, the gap between "what I intended to install" and "what is actually installed" grows monotonically. You install something to solve a problem, the problem gets solved, and three months later you cannot remember why that package is there or whether it is safe to remove.
+
+On NixOS, everything is in the configuration. If a package is installed, there is a line that says so. If a service is running, there is a stanza that declares its parameters. The system is the configuration; they cannot diverge.
+
+The practical effect is that my `configuration.nix` has become a readable history of problems I have encountered and choices I have made. The comment next to `programs.light.enable = true;` says "brightness keys on this laptop need the light group — see the 2025-08 incident". It reads like a journal.
+
+## What reproducibility actually costs
+
+The standard pitch for Nix is that you can rebuild your machine identically on new hardware. This is true and occasionally useful. But the daily cost is that you cannot install things casually. Every addition to the system requires a configuration change and a rebuild.
+
+At first this felt like friction. Now it feels like a useful forcing function. If a package is not worth adding to the configuration, it is probably not worth installing.
+
+## The parts that still hurt
+
+Nix has a steep learning curve, and the documentation situation is improving but not good. There are three or four different ways to do anything (classic, flakes, home-manager, nix-darwin), and the community tends to argue about which is correct rather than explaining when each is appropriate.
+
+I use flakes for everything now. Not because I am certain it is correct, but because the community's energy has moved there and following the energy reduces the number of unanswered questions.
+
+## Would I recommend it?
+
+To someone who wants to understand their system deeply: yes. To someone who wants a workstation that just works: probably not yet.
+
+The value of NixOS is proportional to how much you care about the gap between what you think you have and what you actually have. For data infrastructure work, where that gap is often the source of production incidents, the discipline transfers usefully.

@@ -1,0 +1,223 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Masthead from '../../../components/Masthead.astro';
+import { getCollection } from 'astro:content';
+import type { Lang } from '../../../i18n/ui';
+import { useTranslations } from '../../../i18n/ui';
+
+export function getStaticPaths() {
+  return [{ params: { lang: 'pt' } }, { params: { lang: 'en' } }];
+}
+
+const { lang } = Astro.params as { lang: Lang };
+const t = useTranslations(lang);
+
+const allPosts = await getCollection('blog', ({ data, slug }) =>
+  !data.draft && slug.startsWith(`${lang}/`)
+);
+const posts = allPosts.sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+
+const dateLocale = lang === 'pt' ? 'pt-BR' : 'en-CA';
+const [blogTitleLine1, blogTitleLine2] = t('blog.title').split('\n');
+---
+
+<BaseLayout
+  title={lang === 'pt'
+    ? 'O Caderno Quieto — R. F. Costa'
+    : 'The Quiet Notebook — R. F. Costa'}
+  description={lang === 'pt'
+    ? 'Notas de longa forma sobre pipelines de dados, estatística, Linux e o mestrado.'
+    : "Long-form notes on data pipelines, statistics, Linux, and master's coursework."}
+  lang={lang}
+  canonicalSlug="/blog"
+>
+  <div class="page">
+    <div class="container">
+
+      <Masthead
+        left={t('nav.back_home')}
+        leftHref={`/${lang}`}
+        center={t('nav.blog_center')}
+        right={t('nav.blog_right')}
+        lang={lang}
+      />
+
+      <div class="blog-title">
+        <p class="eyebrow" set:html={t('blog.eyebrow')} />
+        <h1 class="title">{blogTitleLine1}<br />{blogTitleLine2}</h1>
+        <p class="subtitle">{t('blog.subtitle')}</p>
+      </div>
+
+      <div class="posts">
+        {posts.length === 0 && (
+          <p class="empty">{t('blog.empty')}</p>
+        )}
+        {posts.map((post) => {
+          const formatted = post.data.pubDate.toLocaleDateString(dateLocale);
+          const bareSlug = post.slug.replace(`${lang}/`, '');
+          const href = `/${lang}/blog/${bareSlug}`;
+          return (
+            <article class="post-row">
+              <div class="post-meta">
+                <div class="post-date">{formatted}</div>
+                {post.data.readTime && (
+                  <div class="post-read">{post.data.readTime} {t('blog.min_read')}</div>
+                )}
+                <div class="post-kind">{post.data.kind}</div>
+              </div>
+              <div class="post-content">
+                <h2 class="post-title">
+                  <a href={href}>{post.data.title}</a>
+                </h2>
+                <p class="post-excerpt">{post.data.description}</p>
+                <a href={href} class="read-link">{t('blog.read_link')}</a>
+              </div>
+            </article>
+          );
+        })}
+        {posts.length > 0 && <div class="end-marker">{t('blog.end')}</div>}
+      </div>
+
+      <footer class="blog-footer rule-border-t">
+        <a href={`/${lang}`} class="muted-link">{t('blog.back')}</a>
+        <span style="color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.08em; text-transform:uppercase;">
+          <a href="/rss.xml" class="accent-link">RSS</a>
+        </span>
+      </footer>
+
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .page { padding: 80px 0; min-height: 100vh; }
+
+  .container {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 40px 40px;
+    background: var(--bg);
+  }
+
+  .blog-title { margin-bottom: 52px; }
+
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 13px;
+  }
+
+  .title {
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: clamp(40px, 7vw, 56px);
+    font-weight: 400;
+    line-height: 1.0;
+    margin: 0;
+    letter-spacing: -0.015em;
+    font-style: italic;
+    color: var(--ink);
+  }
+
+  .subtitle {
+    margin-top: 22px;
+    color: var(--muted);
+    font-style: italic;
+    max-width: 540px;
+  }
+
+  .empty {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+    padding: 32px 0;
+    border-top: 1px solid var(--rule);
+  }
+
+  .post-row {
+    padding: 32px 0;
+    border-top: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 24px;
+    align-items: baseline;
+  }
+
+  .post-meta {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  .post-read { margin-top: 4px; opacity: 0.7; }
+
+  .post-kind {
+    margin-top: 8px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 10px;
+  }
+
+  .post-title {
+    margin: 0;
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 26px;
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+  }
+
+  .post-title a { color: inherit; text-decoration: none; }
+  .post-title a:hover { color: var(--accent); }
+
+  .post-excerpt {
+    margin: 11px 0 0;
+    color: var(--ink);
+    opacity: 0.85;
+    font-size: 16px;
+  }
+
+  .read-link {
+    display: inline-block;
+    margin-top: 13px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px dotted var(--accent);
+  }
+  .read-link:hover { opacity: 0.8; }
+
+  .end-marker {
+    border-top: 1px solid var(--rule);
+    padding-top: 22px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  .blog-footer {
+    margin-top: 66px;
+    padding-top: 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+</style>

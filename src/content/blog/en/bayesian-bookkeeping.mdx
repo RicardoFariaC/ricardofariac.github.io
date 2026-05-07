@@ -1,0 +1,64 @@
+---
+title: "Bayes is just bookkeeping for the things you don't know yet"
+description: "A from-scratch walk through prior, likelihood, and posterior using a single example I keep returning to: estimating the failure rate of a thing I've never seen fail."
+pubDate: 2026-03-30
+tags: ["bayes", "pymc", "tutorial"]
+kind: Essay
+readTime: 12
+---
+
+The first time I read about Bayesian inference I thought it was a complicated way to do something I already knew how to do. The second time, I understood that it is a simple way to do something most people do not know how to do: *reason honestly about the things you have not yet observed*.
+
+This is a from-scratch walk through the three moving parts — prior, likelihood, posterior — using a single example I keep returning to.
+
+## The problem
+
+You operate a sensor. It has never failed. How confident are you that it will not fail next week?
+
+The frequentist answer is uncomfortable: the maximum likelihood estimate of the failure rate is zero, because you have seen zero failures. That is not useful. It does not match your intuition, which knows that "never failed so far" is different from "cannot fail".
+
+Bayes gives you a principled way to encode that intuition.
+
+## The three pieces
+
+**Prior**: your belief about the failure rate *before* seeing any data. If you have no strong opinion, you might use a uniform prior over the interval `[0, 1]`. If you know sensors like this typically fail roughly once per thousand hours, you can encode that.
+
+**Likelihood**: the probability of your data given a particular value of the failure rate. If the sensor ran for `n` hours without failure, the likelihood of observing that under rate `lambda` is the exponential survival function: `P(no failures | lambda) = exp(-lambda * n)`.
+
+**Posterior**: what you believe after combining prior and likelihood. By Bayes' theorem, the posterior is proportional to the likelihood times the prior: `P(lambda | data) ∝ P(data | lambda) · P(lambda)`.
+
+## Working it through
+
+Suppose the sensor ran 500 hours without failure, and your prior belief is a Gamma(1, 100) distribution — meaning you expect roughly 1 failure per 100 hours, with high uncertainty.
+
+In PyMC:
+
+```python
+import pymc as pm
+import numpy as np
+
+hours_observed = 500
+failures = 0
+
+with pm.Model() as model:
+    # Prior: weakly informative
+    lam = pm.Gamma("lam", alpha=1, beta=100)  # mean = 1/100 failures/hr
+
+    # Likelihood: Poisson process
+    obs = pm.Poisson("obs", mu=lam * hours_observed, observed=failures)
+
+    # Sample posterior
+    trace = pm.sample(2000, tune=1000, target_accept=0.9)
+
+pm.plot_posterior(trace, var_names=["lam"])
+```
+
+The posterior will be concentrated near zero but not at zero. You can now make probabilistic statements: "given 500 failure-free hours and my prior, the 95th percentile of the failure rate is X per hour."
+
+## Why this matters for data work
+
+Most anomaly detection systems I have encountered treat thresholds as facts rather than beliefs. They do not have priors. When data is sparse — a new data source, a recently deployed sensor, a rare event type — the Bayesian framing forces you to say what you thought before the data arrived.
+
+That is not a philosophical preference. It is a practical guard against the failure mode where "zero observed failures" gets treated as "zero failure rate" and someone deploys a system that is more confident than it has any right to be.
+
+The bookkeeping is the point. Writing down your priors is a form of documentation.

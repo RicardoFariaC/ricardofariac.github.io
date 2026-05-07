@@ -1,0 +1,65 @@
+---
+import '../styles/global.css';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  title: string;
+  description?: string;
+  lang?: Lang;
+  canonicalSlug?: string; // path after /{lang}, e.g. '' for home or '/blog/my-post'
+}
+
+const {
+  title,
+  description = 'Personal site and blog of Ricardo Faria da Costa.',
+  lang = 'pt',
+  canonicalSlug = '',
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const altLang: Lang = lang === 'pt' ? 'en' : 'pt';
+const altURL = new URL(`/${altLang}${canonicalSlug}`, Astro.site);
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300..700;1,300..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={canonicalURL} />
+    <link rel="alternate" hreflang={lang}    href={canonicalURL} />
+    <link rel="alternate" hreflang={altLang} href={altURL} />
+    <link rel="alternate" hreflang="x-default" href={new URL(`/${lang}${canonicalSlug}`, Astro.site)} />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/katex@0.16.x/dist/katex.min.css"
+      crossorigin="anonymous"
+    />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:type"        content="website" />
+    <meta property="og:url"         content={canonicalURL} />
+    <meta property="og:title"       content={title} />
+    <meta property="og:description" content={description} />
+    <link rel="alternate" type="application/rss+xml" title="RSS Feed" href="/rss.xml" />
+
+    <!-- Dark-mode init: runs before first paint to prevent FOUC -->
+    <script is:inline>
+      (function () {
+        var stored = localStorage.getItem('theme');
+        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (stored === 'dark' || (!stored && prefersDark) || !stored) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

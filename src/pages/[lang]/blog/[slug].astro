@@ -1,0 +1,47 @@
+---
+import { getCollection } from 'astro:content';
+import BlogPostLayout from '../../../layouts/BlogPostLayout.astro';
+import type { Lang } from '../../../i18n/ui';
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection('blog', ({ data }) => !data.draft);
+
+  // Group entries by bare slug
+  const byBareSlug = new Map<string, Map<string, (typeof allPosts)[number]>>();
+  for (const entry of allPosts) {
+    const slashIdx = entry.slug.indexOf('/');
+    const entryLang = entry.slug.slice(0, slashIdx);
+    const bareSlug  = entry.slug.slice(slashIdx + 1);
+    if (!byBareSlug.has(bareSlug)) byBareSlug.set(bareSlug, new Map());
+    byBareSlug.get(bareSlug)!.set(entryLang, entry);
+  }
+
+  const langs: Lang[] = ['pt', 'en'];
+  const paths = [];
+
+  for (const [bareSlug, langMap] of byBareSlug) {
+    for (const lang of langs) {
+      const entry = langMap.get(lang);
+      const altLang: Lang = lang === 'pt' ? 'en' : 'pt';
+      const fallback = langMap.get(altLang);
+
+      if (entry) {
+        paths.push({ params: { lang, slug: bareSlug }, props: { entry, unavailable: false, bareSlug } });
+      } else if (fallback) {
+        // Render fallback with unavailable notice
+        paths.push({ params: { lang, slug: bareSlug }, props: { entry: fallback, unavailable: true, bareSlug } });
+      }
+    }
+  }
+
+  return paths;
+}
+
+const { entry, unavailable, bareSlug } = Astro.props;
+const { lang } = Astro.params as { lang: Lang };
+const { Content } = await entry.render();
+---
+
+<BlogPostLayout entry={entry} lang={lang} unavailable={unavailable} bareSlug={bareSlug}>
+  <Content />
+</BlogPostLayout>

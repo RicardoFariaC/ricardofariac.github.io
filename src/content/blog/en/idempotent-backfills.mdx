@@ -1,0 +1,75 @@
+---
+title: "Notes on idempotent backfills"
+description: "When a backfill fails halfway through, the cheapest recovery is the one you designed for before you ran it. A small grammar for partition-aware reruns, written down so I stop re-deriving it."
+pubDate: 2026-04-22
+tags: ["airflow", "dbt", "patterns"]
+kind: Essay
+readTime: 8
+---
+
+When a backfill fails halfway through, the cheapest recovery is the one you designed for before you ran it. This is not a controversial claim, but it is one I have had to re-derive from scratch more times than I would like to admit. These notes are an attempt to write it down once, in a form precise enough to be useful the next time.
+
+## The problem
+
+A backfill is a read-and-write operation over a historical range of partitions. It is inherently retry-prone: network timeouts, upstream schema changes, operator impatience. The naive implementation treats each run as stateful — it accumulates. If you run it twice, you double-count.
+
+Idempotent backfills make the second run identical to the first. The mechanism is simple: *replace the partition entirely rather than appending to it*.
+
+## A small grammar
+
+Let $P$ be a set of partitions and $f: P \to D$ the transform you want to apply. An idempotent backfill satisfies:
+
+$$f(f(p)) = f(p) \quad \forall p \in P$$
+
+In practice this means: for each partition, **delete then insert**, not **insert on conflict update**.
+
+```sql
+-- Idempotent: safe to run twice
+DELETE FROM events WHERE date_partition = '2026-04-01';
+INSERT INTO events SELECT * FROM events_raw WHERE date_partition = '2026-04-01';
+```
+
+```sql
+-- Not idempotent: double-counts on retry
+INSERT INTO events SELECT * FROM events_raw WHERE date_partition = '2026-04-01';
+```
+
+## Partition-aware reruns in Airflow
+
+The cleanest Airflow pattern I have found is to parameterize the DAG on `logical_date` and make each task responsible for exactly one partition:
+
+```python
+@task
+def backfill_partition(logical_date=None):
+    date_str = logical_date.strftime("%Y-%m-%d")
+    with engine.begin() as conn:
+        conn.execute(text("DELETE FROM events WHERE date_partition = :d"), {"d": date_str})
+        conn.execute(text("INSERT INTO events SELECT * FROM events_raw WHERE date_partition = :d"), {"d": date_str})
+```
+
+Running this task twice for the same `logical_date` produces the same result. You can re-trigger the entire backfill range without fear.
+
+## dbt incremental models
+
+dbt's `incremental` strategy already handles this if you use `unique_key`:
+
+```sql
+{{ config(
+    materialized='incremental',
+    unique_key='event_id',
+    on_schema_change='sync_all_columns'
+) }}
+
+SELECT * FROM {{ source('raw', 'events') }}
+{% if is_incremental() %}
+  WHERE date_partition >= (SELECT MAX(date_partition) FROM {{ this }}) - INTERVAL '3 days'
+{% endif %}
+```
+
+The `unique_key` tells dbt to upsert rather than append. The 3-day lookback window handles late-arriving data without scanning the whole table.
+
+## When it matters most
+
+Idempotency matters most when the cost of a mistake is high: financial data, audit trails, anything with downstream SLAs. For exploratory analytics, append-with-dedup-at-query-time is often good enough. Know which regime you are in before you design the pipeline.
+
+The rule of thumb I keep coming back to: **if you would be nervous to run it twice, it is not idempotent yet**.

@@ -1,0 +1,69 @@
+---
+import type { Lang } from '../i18n/ui';
+import { useTranslations } from '../i18n/ui';
+
+interface Props {
+  fontName?: string;
+  showNav?: boolean;
+  lang?: Lang;
+}
+
+const { fontName = 'Crimson Pro', showNav = true, lang = 'pt' } = Astro.props;
+const t = useTranslations(lang);
+
+const dateLocale = lang === 'pt' ? 'pt-BR' : 'en-GB';
+const lastRevised = new Date().toLocaleDateString(dateLocale, { day: 'numeric', month: 'long', year: 'numeric' });
+
+const altLang: Lang = lang === 'pt' ? 'en' : 'pt';
+const currentPath = Astro.url.pathname;
+const altPath = currentPath.replace(new RegExp(`^/${lang}(/|$)`), `/${altLang}$1`) || `/${altLang}/`;
+---
+
+<footer class="colophon">
+  <div class="correspondence">
+    <div class="col-label">{t('footer.correspondence')}</div>
+    <div><a href="mailto:ricardofcosta0804@gmail.com" class="muted-link">ricardofcosta0804@gmail.com</a></div>
+    <div style="margin-top:4px"><a href="https://github.com/ricardofariac" class="muted-link" target="_blank" rel="noopener noreferrer">github.com/ricardofariac</a></div>
+    <div style="margin-top:4px"><a href="https://linkedin.com/in/ricardofaria" class="muted-link" target="_blank" rel="noopener noreferrer">linkedin.com/in/ricardofaria</a></div>
+  </div>
+  <div class="colophon-right">
+    <div class="col-label">{t('footer.colophon')}</div>
+    <div>{t('footer.set_in')} {fontName}.</div>
+    <div style="margin-top:4px">{t('footer.built_with')}</div>
+    <div style="margin-top:4px">{t('footer.last_revised')} {lastRevised}.</div>
+    <div style="margin-top:10px" class="lang-switch">
+      <a href={currentPath} class:list={[{ active: true }]}>{lang.toUpperCase()}</a>
+      <span class="sep">·</span>
+      <a href={altPath}>{altLang.toUpperCase()}</a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .colophon {
+    margin-top: 66px;
+    padding-top: 30px;
+    border-top: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .colophon-right { text-align: right; }
+
+  .col-label {
+    margin-bottom: 6px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .colophon a { color: var(--ink); }
+
+  .lang-switch { letter-spacing: 0.08em; text-transform: uppercase; }
+  .lang-switch a { color: var(--muted); text-decoration: none; }
+  .lang-switch a.active { color: var(--accent); }
+  .sep { margin: 0 3px; color: var(--rule); }
+</style>

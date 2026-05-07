@@ -1,0 +1,98 @@
+---
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  left?: string;
+  leftHref?: string;
+  center?: string;
+  right?: string;
+  lang?: Lang;
+}
+
+const {
+  left = 'Vol. I · No. 1',
+  leftHref,
+  center = 'R. F. Costa · Personal Records',
+  right = 'São José dos Campos · MMXXVI',
+  lang = 'pt',
+} = Astro.props;
+
+const altLang: Lang = lang === 'pt' ? 'en' : 'pt';
+const currentPath = Astro.url.pathname;
+const altPath = currentPath.replace(new RegExp(`^/${lang}(/|$)`), `/${altLang}$1`) || `/${altLang}/`;
+---
+
+<header class="masthead">
+  <div class="left">
+    {leftHref
+      ? <a href={leftHref} class="muted-link">{left}</a>
+      : <span>{left}</span>
+    }
+  </div>
+  <div class="center"><a href={`/${lang}/blog`} class="accent-link">{center}</a></div>
+  <div class="right-group">
+    <span>{right}</span>
+    <div class="lang-switch">
+      <a href={currentPath} class="lang active">{lang.toUpperCase()}</a>
+      <span class="lang-sep">·</span>
+      <a href={altPath} class="lang">{altLang.toUpperCase()}</a>
+    </div>
+    <button id="theme-toggle" aria-label="Toggle dark mode" class="toggle">
+      <span class="sun">☀</span>
+      <span class="moon">☽</span>
+    </button>
+  </div>
+</header>
+
+<script>
+  const btn = document.getElementById('theme-toggle')!;
+  btn.addEventListener('click', () => {
+    const isDark = document.documentElement.classList.toggle('dark');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  });
+</script>
+
+<style>
+  .masthead {
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 22px;
+    margin-bottom: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .right-group {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 13px;
+    padding: 0;
+    line-height: 1;
+  }
+  .toggle:hover { color: var(--ink); }
+
+  /* Show sun in dark mode, moon in light mode */
+  .sun { display: none; }
+  .moon { display: inline; }
+  :global(html.dark) .sun  { display: inline; }
+  :global(html.dark) .moon { display: none; }
+  .lang-switch { display: flex; align-items: center; gap: 3px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .lang { color: var(--muted); text-decoration: none; }
+  .lang.active { color: var(--accent); }
+  .lang-sep { color: var(--rule); }
+</style>

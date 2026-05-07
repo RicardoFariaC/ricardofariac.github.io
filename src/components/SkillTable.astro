@@ -1,0 +1,56 @@
+---
+import type { Lang } from '../i18n/ui';
+import { useTranslations } from '../i18n/ui';
+
+interface Props { lang?: Lang; }
+const { lang = 'pt' } = Astro.props;
+const t = useTranslations(lang);
+
+const rows = [
+  [t('skill.languages'),  'Python · SQL · Bash · Go'],
+  [t('skill.data'),       'dbt · Airflow · DuckDB · Postgres · Spark · Parquet'],
+  [t('skill.statistics'), 'Bayesian inference · time-series · A/B · causal basics'],
+  [t('skill.ai_ml'),      'scikit-learn · PyTorch · embeddings · evaluation discipline'],
+  [t('skill.systems'),    'Linux (RHEL, Fedora) · Docker · clusters · load balancer'],
+  [t('skill.msc'),        'Systems engineering · Security engineering · on-board data handling'],
+];
+---
+
+<table class="skill-table">
+  <tbody>
+    {rows.map(([k, v], i) => (
+      <tr class:list={[{ 'first-row': i === 0 }]}>
+        <td class="key">{k}</td>
+        <td class="val">{v}</td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
+<style>
+  .skill-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+  }
+
+  tr { border-bottom: 1px solid var(--rule); }
+  tr.first-row { border-top: 1px solid var(--rule); }
+
+  .key {
+    padding: 10px 12px 10px 0;
+    width: 130px;
+    vertical-align: top;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .val {
+    padding: 10px 0;
+    font-style: italic;
+    color: var(--ink);
+  }
+</style>
